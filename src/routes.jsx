@@ -1,30 +1,46 @@
-// Import necessary components and functions from react-router-dom.
+import { StoreDemo } from "./views/storedemo";
+import { SingleItem } from "./views/singleitem";
+import injectContext from "./store/appContext";
+import { Home } from "./views/home";
+import { Navbar } from "./components/navbar";
+import { Footer } from "./components/footer";
+import { Details } from "./views/details";
+import { Favorites } from "./views/favorites";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import BackToTop from "./components/backToTop";
+import PropTypes from "prop-types";
 
-import {
-    createBrowserRouter,
-    createRoutesFromElements,
-    Route,
-} from "react-router-dom";
-import { Layout } from "./pages/Layout";
-import { Home } from "./pages/Home";
-import { Single } from "./pages/Single";
-import { Demo } from "./pages/Demo";
+// Define BackToTopWrapper fuera del componente App
+function BackToTopWrapper({ children }) {
+  const location = useLocation();
+  return <BackToTop location={location}>{children}</BackToTop>;
+}
 
-export const router = createBrowserRouter(
-    createRoutesFromElements(
-    // CreateRoutesFromElements function allows you to build route elements declaratively.
-    // Create your routes here, if you want to keep the Navbar and Footer in all views, add your new routes inside the containing Route.
-    // Root, on the contrary, create a sister Route, if you have doubts, try it!
-    // Note: keep in mind that errorElement will be the default page when you don't get a route, customize that page to make your project more attractive.
-    // Note: The child paths of the Layout element replace the Outlet component with the elements contained in the "element" attribute of these child paths.
+BackToTopWrapper.propTypes = {
+  children: PropTypes.node
+};
 
-      // Root Route: All navigation will start from here.
-      <Route path="/" element={<Layout />} errorElement={<h1>Not found!</h1>} >
+const App = () => {
+  const basename = import.meta.env.VITE_BASENAME || "";
 
-        {/* Nested Routes: Defines sub-routes within the BaseHome component. */}
-        <Route path= "/" element={<Home />} />
-        <Route path="/single/:theId" element={ <Single />} />  {/* Dynamic route for single items */}
-        <Route path="/demo" element={<Demo />} />
-      </Route>
-    )
-);
+  return (
+    <div>
+      <BrowserRouter basename={basename}>
+        <BackToTopWrapper>
+          <Navbar />
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/details/:type/:id" element={<Details />} />
+            <Route path="/demo" element={<StoreDemo />} />
+            <Route path="/single/:theid" element={<SingleItem />} />
+            <Route path="/favorites" element={<Favorites />} />
+            <Route path="*" element={<h1>Not found!</h1>} />
+          </Routes>
+          <Footer />
+        </BackToTopWrapper>
+      </BrowserRouter>
+    </div>
+  );
+};
+
+export default injectContext(App);
